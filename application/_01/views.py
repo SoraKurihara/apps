@@ -21,7 +21,10 @@ def show_result():
         image = Image.open(io.BytesIO(file.read()))
 
         # 画像を縮小（64x64ピクセル）
-        small = image.resize((16, 16), resample=Image.BILINEAR)
+        small = image.resize((64, 64), resample=Image.NEAREST)
+
+        # 色の数を減らす（ここでは例として最大16色に減色）
+        small = small.convert("P", palette=Image.ADAPTIVE, colors=16)
         
         # 画像を元のサイズに拡大
         result = small.resize(image.size, Image.NEAREST)
