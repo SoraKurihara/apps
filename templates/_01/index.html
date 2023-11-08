@@ -4,7 +4,7 @@
 {% block content %}
 <h1>簡単！ドット絵メーカー</h1>
 <form id="imageForm" action="/_01/result" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" id="file" onchange="previewFile()">
+    <input type="file" name="file" id="file" onchange="previewFile()　accept="image/png, image/jpeg"">
     <input type="submit" value="実行" id="executeButton">
 </form>
 <img id="preview" style="display:none;">
