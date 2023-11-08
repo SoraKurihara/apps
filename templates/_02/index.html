@@ -1,52 +1,99 @@
 <!DOCTYPE html>
 <html lang="ja">
 
+{% block style %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style_two.css') }}">
+<style>
+    canvas {
+        border: 1px solid black;
+        /* Canvasに境界を追加 */
+        cursor: crosshair;
+        /* カーソルを十字に変更 */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1>モザイク加工</h1>
-<form id="imageForm" action="/_02/result" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" id="file" onchange="previewFile()">
+<form id="imageForm" action="{{ url_for('_02_app.show_result') }}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" id="file" onchange="previewFile()" accept="image/png, image/jpeg">
     <input type="hidden" name="coordinates" id="coordinates">
     <input type="submit" value="実行" id="executeButton">
 </form>
 <canvas id="imageCanvas"></canvas>
-<script src="{{ url_for('static', filename='selectArea.js') }}"></script>
 
 <script>
     let canvas = document.getElementById('imageCanvas');
     let ctx = canvas.getContext('2d');
-    let startX, startY, endX, endY;
+    let img = new Image(); // 画像を保存するためのグローバル変数
+    let isSelecting = false; // ユーザーが範囲選択中かを追跡
+    let rect = {}; // 選択範囲を描画するための状態
 
+    // キャンバス上の位置を取得する関数
+    function getCursorPosition(canvas, event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left - window.scrollX,
+            y: event.clientY - rect.top - window.scrollY
+        };
+    }
+
+    // mousedownイベントハンドラー
     canvas.addEventListener('mousedown', function (e) {
-        startX = e.clientX;
-        startY = e.clientY;
+        isSelecting = true;
+        const cursorPosition = getCursorPosition(canvas, e);
+        rect.startX = cursorPosition.x;
+        rect.startY = cursorPosition.y;
+        rect.w = 0; // 初期幅
+        rect.h = 0; // 初期高さ
     });
 
-    canvas.addEventListener('mouseup', function (e) {
-        endX = e.clientX;
-        endY = e.clientY;
+    // mousemoveイベントハンドラー
+    canvas.addEventListener('mousemove', function (e) {
+        if (!isSelecting) return;
+        const cursorPosition = getCursorPosition(canvas, e);
+        rect.w = cursorPosition.x - rect.startX;
+        rect.h = cursorPosition.y - rect.startY;
 
-        // Draw the selected area
-        ctx.rect(startX, startY, endX - startX, endY - startY);
+        // まず画像を描画
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
+        ctx.drawImage(img, 0, 0); // キャンバスに画像を描画
+
+        // 選択範囲を描画
+        ctx.beginPath();
+        ctx.rect(rect.startX, rect.startY, rect.w, rect.h);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 1;
         ctx.stroke();
-
-        // Save coordinates
-        document.getElementById('coordinates').value = `${startX},${startY},${endX},${endY}`;
+        ctx.closePath();
     });
 
+    // mouseupイベントハンドラー
+    canvas.addEventListener('mouseup', function (e) {
+        if (isSelecting) {
+            isSelecting = false;
+            // 最終的な選択範囲をフォームにセット
+            const normStartX = Math.min(rect.startX, rect.startX + rect.w);
+            const normStartY = Math.min(rect.startY, rect.startY + rect.h);
+            const normEndX = Math.max(rect.startX, rect.startX + rect.w);
+            const normEndY = Math.max(rect.startY, rect.startY + rect.h);
+            document.getElementById('coordinates').value = `${normStartX},${normStartY},${normEndX},${normEndY}`;
+        }
+    });
+
+    // ファイルプレビュー機能
     function previewFile() {
         const file = document.getElementById('file').files[0];
         const reader = new FileReader();
 
-        reader.addEventListener('load', function () {
-            const img = new Image();
-            img.src = reader.result;
-
+        reader.addEventListener('load', function (e) {
             img.onload = function () {
                 canvas.width = img.width;
                 canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0); // 画像をキャンバスに描画
             };
-        }, false);
+            img.src = e.target.result;
+        });
 
         if (file) {
             reader.readAsDataURL(file);
@@ -54,3 +101,4 @@
     }
 </script>
 {% endblock %}
+
