@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>モザイク処理結果</title>
+</head>
+
+<body>
+    <h1>結果</h1>
+    <img src="{{ image_data }}" alt="モザイク画像">
+    <br>
+    <a href="{{ url_for('_02_app.show_template') }}">違う画像で試す</a>
+    <a download="result.png" id="downloadLink" href="{{ image_data }}">保存</a>
+</body>
+
+</html>
