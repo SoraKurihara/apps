@@ -1,32 +1,51 @@
-import io
+import base64
+from io import BytesIO
 
-from PIL import Image, ImageFilter
+from flask import Blueprint, render_template, request
+from PIL import Image
 
-from flask import Blueprint, render_template, request, send_file
+blur = Blueprint("_02_app", __name__, url_prefix="/_02")
 
-blur = Blueprint('_02_app', __name__, url_prefix='/_02')
 
-@blur.route('/', methods=['GET', 'POST'])
+@blur.route("/", methods=["GET"])
 def show_template():
-    if request.method == 'POST':
-        file = request.files['file']
-        coordinates = request.form['coordinates']
-        startX, startY, endX, endY = map(int, coordinates.split(','))
-        
-        img = Image.open(file)
-        
-        # Crop the selected area and apply mosaic
+    return render_template("_02/index.html")
+
+
+@blur.route("/result", methods=["POST"])
+def show_result():
+    # 画像と座標をフォームから取得
+    file = request.files["file"]
+    coordinates = request.form.get("coordinates")
+
+    # 座標の文字列を浮動小数点数のタプルに変換し、適切に整数に丸める
+    coords = tuple(map(int, map(float, coordinates.split(","))))
+
+    # モザイク処理を行う関数
+    def apply_mosaic(img, coords, mosaic_size):
+        startX, startY, endX, endY = coords
         cropped_img = img.crop((startX, startY, endX, endY))
-        small = cropped_img.resize((20, 20), resample=Image.BILINEAR)
+        small = cropped_img.resize((mosaic_size, mosaic_size), resample=Image.NEAREST)
         result = small.resize(cropped_img.size, Image.NEAREST)
-        
-        # Paste the mosaic part back
-        img.paste(result, (startX, startY, endX, endY))
-        
-        img_io = io.BytesIO()
-        img.save(img_io, 'JPEG')
-        img_io.seek(0)
-        
-        return send_file(img_io, mimetype='image/jpeg')
-        
-    return render_template('_02/index.html')
+        img.paste(result, (startX, startY))
+        return img
+
+    # 画像を開く
+    img = Image.open(file.stream)
+
+    # モザイクのサイズ（例：10ピクセル）
+    mosaic_size = 10
+
+    # モザイク処理を適用
+    img = apply_mosaic(img, coords, mosaic_size)
+
+    # 結果をBase64エンコードしてブラウザに返す
+    img_io = BytesIO()
+    img.save(img_io, "PNG", quality=70)
+    img_io.seek(0)
+    image_data = base64.b64encode(img_io.getvalue()).decode("utf-8")
+
+    # 結果ページにレンダリング
+    return render_template(
+        "_02/result.html", image_data="data:image/png;base64," + image_data
+    )
