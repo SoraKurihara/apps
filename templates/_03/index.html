@@ -29,142 +29,215 @@
         }
 
         function handleInitialConditionChange() {
-            var fixedInput = document.getElementById('fixedInput');
             var randomInput = document.getElementById('randomInput');
             if (document.getElementById('fixed').checked) {
-                fixedInput.style.display = 'block';
                 randomInput.style.display = 'none';
             } else if (document.getElementById('random').checked) {
-                randomInput.style.display = 'block';
+                randomInput.style.display = 'inline';
                 fixedInput.style.display = 'none';
             }
+        }
+
+        function maxones() {
+            var ones = document.getElementById('ones');
+            ones.max = document.getElementById('length').value;
+        }
+
+        function generateInitial() {
+            var length = document.getElementById('length').value;
+            var ones = document.getElementById('ones').value;
+            var num = '0'.padStart(length, '0');
+            // if (document.getElementById('fixed').checked) {
+            //     randomInput.style.display = 'none';
+            // } else if (document.getElementById('random').checked) {
+            //     randomInput.style.display = 'block';
+            //     fixedInput.style.display = 'none';
+            // }
+            var randoms = [];
+            var min = 0, max = length - 1;
+            for (i = min; i <= ones - 1; i++) {
+                while (true) {
+                    var tmp = Math.floor(Math.random() * (max - min + 1)) + min;
+                    if (!randoms.includes(tmp)) {
+                        randoms.push(tmp);
+                        break;
+                    }
+                }
+            }
+            let chars = num.split('');
+            randoms.forEach(index => {
+                chars[index] = '1'
+            });
+            var num = chars.join('')
+            document.getElementById("init").value = num;
+        }
+
+        function validateBinaryInput(input) {
+            input.value = input.value.replace(/[^01]/g, '')
+        }
+
+        function sendData() {
+            var rule = document.getElementById('rule').value;
+            var init = document.getElementById('init').value;
+            var step = document.getElementById('step').value;
+            var formData = new FormData();
+            formData.append('rule', rule)
+            formData.append('init', init)
+            formData.append('step', step)
+
+            fetch('/_03/generate', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    var outputImage = document.getElementById('outputImage');
+                    outputImage.src = 'data:image/png;base64,' + data.image_data;
+                    outputImage.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            return false
         }
     </script>
 </head>
 
 <body>
     <h1>セルオートマトンジェネレータ</h1>
-    <form action="/_03/generate" method="post">
+    <form>
         <div class="input-group">
             <label for="rule">ルール番号（Rule Number）:</label>
             <input type="number" id="rule" name="rule" min="0" max="255" required oninput="ruleNumberToTable()">
         </div>
+    </form>
 
-        <div class="rule-table">
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">1</div>
-                    <div class="cell">1</div>
-                    <div class="cell">1</div>
-                </div>
-                <select name="rule0" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
+    <div class="rule-table">
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">1</div>
+                <div class="cell">1</div>
+                <div class="cell">1</div>
             </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">1</div>
-                    <div class="cell">1</div>
-                    <div class="cell">0</div>
-                </div>
-                <select name="rule1" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">1</div>
-                    <div class="cell">0</div>
-                    <div class="cell">1</div>
-                </div>
-                <select name="rule2" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">1</div>
-                    <div class="cell">0</div>
-                    <div class="cell">0</div>
-                </div>
-                <select name="rule3" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">0</div>
-                    <div class="cell">1</div>
-                    <div class="cell">1</div>
-                </div>
-                <select name="rule4" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">0</div>
-                    <div class="cell">1</div>
-                    <div class="cell">0</div>
-                </div>
-                <select name="rule5" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">0</div>
-                    <div class="cell">0</div>
-                    <div class="cell">1</div>
-                </div>
-                <select name="rule6" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
-            <div class="rule">
-                <div class="cells">
-                    <div class="cell">0</div>
-                    <div class="cell">0</div>
-                    <div class="cell">0</div>
-                </div>
-                <select name="rule7" class="result-cell" onchange="tableToRuleNumber()">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                </select>
-            </div>
+            <select name="rule0" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
         </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">1</div>
+                <div class="cell">1</div>
+                <div class="cell">0</div>
+            </div>
+            <select name="rule1" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">1</div>
+                <div class="cell">0</div>
+                <div class="cell">1</div>
+            </div>
+            <select name="rule2" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">1</div>
+                <div class="cell">0</div>
+                <div class="cell">0</div>
+            </div>
+            <select name="rule3" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">0</div>
+                <div class="cell">1</div>
+                <div class="cell">1</div>
+            </div>
+            <select name="rule4" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">0</div>
+                <div class="cell">1</div>
+                <div class="cell">0</div>
+            </div>
+            <select name="rule5" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">0</div>
+                <div class="cell">0</div>
+                <div class="cell">1</div>
+            </div>
+            <select name="rule6" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div class="rule">
+            <div class="cells">
+                <div class="cell">0</div>
+                <div class="cell">0</div>
+                <div class="cell">0</div>
+            </div>
+            <select name="rule7" class="result-cell" onchange="tableToRuleNumber()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+    </div>
 
-
-        <input type="radio" id="fixed" name="initialCondition" value="fixed" onclick="handleInitialConditionChange()">
+    <div>
+        <input type="radio" id="fixed" name="initialCondition" value="fixed" checked
+            onclick="handleInitialConditionChange()">
         <label for="fixed">固定（Fixed）</label>
         <input type="radio" id="random" name="initialCondition" value="random" onclick="handleInitialConditionChange()">
         <label for="random">ランダム（Random）</label>
-
-        <div id="fixedInput" style="display:none;">
-            <label for="length">長さ（Length）:</label>
-            <input type="number" id="length" name="length" min="1">
-        </div>
         <div id="randomInput" style="display:none;">
             <label for="seed">Seed値（Seed Value）:</label>
             <input type="number" id="seed" name="seed">
         </div>
+    </div>
 
-        <input type="submit" value="初期配置作成">
 
+    <div>
+        <label for="length">長さ（Length）:</label>
+        <input type="number" id="length" name="length" min="3" value="3" onchange="maxones()">
+        <label for="ones">1の数（Ones）:</label>
+        <input type="number" id="ones" name="ones" min="0" max="3" value="3">
+    </div>
+
+
+    <input type="button" value="初期配置作成" onclick="generateInitial()">
+
+    <form onsubmit="return sendData();">
+        <input type="text" id="init" name="init" oninput="validateBinaryInput(this)">
         <div>
-            <label for="steps">総ステップ数（Total Steps）:</label>
-            <input type="number" id="steps" name="steps" min="1" required>
+            <label for="step">総ステップ数（Total Step）:</label>
+            <input type="number" id="step" name="step" min="1" required>
         </div>
-
         <input type="submit" value="Generate">
     </form>
+
+    <div id="resultImage">
+        <img id="outputImage" alt="Cellular Automaton Output" style="display:none;" />
+    </div>
 </body>
 
 </html>
