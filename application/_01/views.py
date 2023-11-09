@@ -1,21 +1,22 @@
 import base64
 import io
 
+from flask import Blueprint, render_template, request, send_file
 from PIL import Image
 from werkzeug.utils import secure_filename
 
-from flask import Blueprint, render_template, request, send_file
-
 # Blueprintの定義
-pixel_art = Blueprint('_01_app', __name__, url_prefix='/_01')
+pixel_art = Blueprint("_01_app", __name__, url_prefix="/_01")
 
-@pixel_art.route('/', methods=['GET'])
+
+@pixel_art.route("/", methods=["GET"])
 def show_template():
-    return render_template('_01/index.html')
+    return render_template("_01/index.html")
 
-@pixel_art.route('/result', methods=['POST'])
+
+@pixel_art.route("/result", methods=["POST"])
 def show_result():
-    file = request.files['file']
+    file = request.files["file"]
     if file:
         filename = secure_filename(file.filename)
         image = Image.open(io.BytesIO(file.read()))
@@ -25,16 +26,18 @@ def show_result():
 
         # 色の数を減らす（ここでは例として最大16色に減色）
         small = small.convert("P", palette=Image.ADAPTIVE, colors=16)
-        
+
         # 画像を元のサイズに拡大
         result = small.resize(image.size, Image.NEAREST)
 
         # 画像をバイトIOオブジェクトとして保存
         byte_io = io.BytesIO()
-        result.save(byte_io, format='PNG')
+        result.save(byte_io, format="PNG")
         byte_io.seek(0)
-        
-        image_data = base64.b64encode(byte_io.read()).decode('utf-8')
-        return render_template('_01/result.html', image_data=f"data:image/png;base64,{image_data}")
+
+        image_data = base64.b64encode(byte_io.read()).decode("utf-8")
+        return render_template(
+            "_01/result.html", image_data=f"data:image/png;base64,{image_data}"
+        )
 
     return "ファイルがありません"

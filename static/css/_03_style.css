@@ -1,0 +1,51 @@
+/* styles.css */
+.rule-table {
+    display: flex;
+    flex-wrap: wrap;
+    /* アイテムが折り返すように設定 */
+    justify-content: flex-start;
+    /* アイテムを中央揃えに */
+    align-items: center;
+    /* アイテムを縦方向の中央に配置 */
+}
+
+.rule {
+    display: inline-block;
+    /* フレックスアイテムではなく、インラインブロックとして表示 */
+    margin: 5px;
+    /* 余白を調整 */
+    text-align: center;
+    /* テキストを中央揃えに */
+}
+
+.cells {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.cell,
+.result-cell select {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    display: inline-block;
+    text-align: center;
+    line-height: 20px;
+}
+
+.result-cell {
+    border: 1px solid black;
+    padding: 0;
+}
+
+.result-cell select {
+    border: none;
+    width: 100%;
+    height: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: white;
+    cursor: pointer;
+}

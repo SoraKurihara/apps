@@ -16,15 +16,21 @@ from application._02.views import blur
 
 app.register_blueprint(blur)
 
+from application._03.views import cellular_automaton
+
+app.register_blueprint(cellular_automaton)
+
+
 # ==================================================
 # ルーティング
 # ==================================================
-@app.route('/')
+@app.route("/")
 def show_home():
-    return render_template('index.html')
+    return render_template("index.html")
+
 
 # ==================================================
 # 実行
 # ==================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
