@@ -11,10 +11,10 @@
             var ruleNumber = parseInt(document.getElementById('rule').value);
             var binaryString = (ruleNumber >>> 0).toString(2).padStart(8, '0');
 
-            binaryString.split('').forEach(function (bit, index) {
-                var selectElement = document.getElementsByName('rule' + index)[0];
-                selectElement.value = bit;
-            });
+            for (var i = 0; i < binaryString.length; i++) {
+                var selectElement = document.getElementsByName('rule' + i)[0];
+                selectElement.value = binaryString[i];
+            }
         }
 
         function tableToRuleNumber() {
@@ -43,11 +43,11 @@
 </head>
 
 <body>
-    <h1>Cellular Automaton Generator</h1>
+    <h1>セルオートマトンジェネレータ</h1>
     <form action="/_03/generate" method="post">
         <div class="input-group">
-            <label for="rule">Rule Number:</label>
-            <input type="number" id="rule" name="rule" min="0" max="255" required>
+            <label for="rule">ルール番号（Rule Number）:</label>
+            <input type="number" id="rule" name="rule" min="0" max="255" required oninput="ruleNumberToTable()">
         </div>
 
         <div class="rule-table">
@@ -143,21 +143,23 @@
 
 
         <input type="radio" id="fixed" name="initialCondition" value="fixed" onclick="handleInitialConditionChange()">
-        <label for="fixed">Fixed</label>
+        <label for="fixed">固定（Fixed）</label>
         <input type="radio" id="random" name="initialCondition" value="random" onclick="handleInitialConditionChange()">
-        <label for="random">Random</label>
+        <label for="random">ランダム（Random）</label>
 
         <div id="fixedInput" style="display:none;">
-            <label for="length">Length:</label>
+            <label for="length">長さ（Length）:</label>
             <input type="number" id="length" name="length" min="1">
         </div>
         <div id="randomInput" style="display:none;">
-            <label for="seed">Seed Value:</label>
+            <label for="seed">Seed値（Seed Value）:</label>
             <input type="number" id="seed" name="seed">
         </div>
 
+        <input type="submit" value="初期配置作成">
+
         <div>
-            <label for="steps">Total Steps:</label>
+            <label for="steps">総ステップ数（Total Steps）:</label>
             <input type="number" id="steps" name="steps" min="1" required>
         </div>
 
