@@ -20,6 +20,10 @@ from application._03.views import cellular_automaton
 
 app.register_blueprint(cellular_automaton)
 
+from application._04.views import tetris
+
+app.register_blueprint(tetris)
+
 
 # ==================================================
 # ルーティング

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/_04_style.css') }}">
+</head>
+
+<body>
+    <h1>Tetris Game</h1>
+    <div id="tetrisBoard"></div>
+    <div id="mini-grid"></div>
+    <p>Score: <span id="score">0</span></p>
+    <button id="startButton">Start Game</button>
+    <button id="restartButton">Restart Game</button>
+
+    <script src="{{ url_for('static', filename='js/tetris.js') }}"></script>
+</body>
+
+</html>
